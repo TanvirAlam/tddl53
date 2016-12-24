@@ -15,15 +15,39 @@ class ConcertTest extends TestCase
     public function can_get_formatted_date()
     {
         //create a concert with a known date
-        $concert = factory(Concert::class)->create([
+        $concert = factory(Concert::class)->make([
            'date' => Carbon::parse('2016-12-01 8:00pm'),
 
         ]);
 
-        //retrieve the formatted date
-        $date = $concert->formatted_date;
+        //verify the date is formatted as expected
+        $this->assertEquals('December 1, 2016', $concert->formatted_date);
+    }
+
+    /** @test */
+    public function can_get_formatted_time()
+    {
+        //create a concert with a known date
+        $concert = factory(Concert::class)->make([
+            'date' => Carbon::parse('2016-12-01 17:00:00'),
+
+        ]);
 
         //verify the date is formatted as expected
-        $this->assertEquals('December 1, 2016', $date);
+        $this->assertEquals('5:00pm', $concert->formatted_start_time);
     }
+
+    /** @test */
+    public function can_get_ticket_price_in_dollars()
+    {
+        //create a concert with a known date
+        $concert = factory(Concert::class)->make([
+            'ticket_price' => 6750,
+
+        ]);
+
+        //verify the date is formatted as expected
+        $this->assertEquals('67.50', $concert->ticket_price_in_dollars);
+    }
+
 }
