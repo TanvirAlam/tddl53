@@ -11,7 +11,7 @@ class ViewConcertListingTest extends TestCase
     use DatabaseMigrations;
 
     /** @test  */
-    public function userCanViewAConcertListingTest()
+    public function userCanViewAPublishedConcertListingTest()
     {
         //Arrange
         //Create a concert
@@ -30,7 +30,6 @@ class ViewConcertListingTest extends TestCase
         ]);
 
         //Act
-
         $this->visit('/concerts/'.$concert->id);
 
         //Assert
@@ -44,4 +43,17 @@ class ViewConcertListingTest extends TestCase
         $this->see('Helsingor, H 3000');
         $this->see('Call-92165545');
     }
+
+    /** @test  */
+    public function userCannotViewUnpublishedConcertListing()
+    {
+        $concert = factory(Concert::class)->create([
+            'published_at' => null,
+        ]);
+
+        $this->get('/concerts/'.$concert->id);
+
+        $this->assertResponseStatus(404);
+    }
+
 }
