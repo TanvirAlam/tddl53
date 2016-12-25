@@ -35,7 +35,7 @@ class PurchaseTicketsTests extends TestCase
     {
         //Create a concert
         $concert = factory(Concert::class)->states('published')->create(['ticket_price' => 3250]);
-
+        $concert->addTickets(3);
         //act
 
         //Purchase concert tickets
@@ -148,6 +148,7 @@ class PurchaseTicketsTests extends TestCase
     public function cannotPurchaseTicketsToAnUnpublishedConcert()
     {
         $concert = factory(Concert::class)->states('unpublished')->create();
+        $concert->addTickets(3);
 
         $this->orderTickets($concert, [
             'email' => 'john@example.com',
@@ -167,7 +168,7 @@ class PurchaseTicketsTests extends TestCase
     {
 
         $concert = factory(Concert::class)->states('published')->create();
-
+        $concert->addTickets(3);
 
         $this->orderTickets($concert, [
             'email' => 'john@example.com',
