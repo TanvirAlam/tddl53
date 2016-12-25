@@ -161,6 +161,7 @@ class PurchaseTicketsTests extends TestCase
         $this->assertResponseStatus(404);
 
         $this->assertFalse($concert->hasOrderFor('john@example.com'));
+
         $this->assertEquals(0, $this->paymentGateway->totalCharges());
     }
 
