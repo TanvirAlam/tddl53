@@ -183,15 +183,15 @@ class PurchaseTicketsTests extends TestCase
     /**
      * @test
      */
-   /* public function cannot_purchase_more_tickets_than_remain()
+    public function cannotPurchaseMoreTicketsThanRemain()
     {
+        $concert = factory(Concert::class)->states('published')->create();
 
-        $concert = factory(Concert::class)->create();
         $concert->addTickets(50);
 
         $this->orderTickets($concert, [
             'email' => 'john@example.com',
-            'tickets_qty' => 50,
+            'ticket_quantity' => 51,
             'payment_token' => $this->paymentGateway->getValidTestToken(),
         ]);
 
@@ -201,7 +201,7 @@ class PurchaseTicketsTests extends TestCase
 
         $this->assertEquals(0, $this->paymentGateway->totalCharges());
         $this->assertEquals(50, $concert->ticketsRemaining());
-    }*/
+    }
 
 
     /** @test  */
