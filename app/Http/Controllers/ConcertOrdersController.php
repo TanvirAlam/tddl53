@@ -36,7 +36,7 @@ class ConcertOrdersController extends Controller
         return response()->json([], 201);*/
 
         try {
-            $concert = Concert::find($concertId);
+            $concert = Concert::published()->findOrFail($concertId);
             $this->paymentGateway->charge(request('ticket_quantity') * $concert->ticket_price, request('payment_token'));
             $order = $concert->orderTickets(request('email'), request('ticket_quantity'));
 
