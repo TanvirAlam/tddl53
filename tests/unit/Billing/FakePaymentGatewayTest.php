@@ -1,6 +1,7 @@
 <?php
 
 use App\Billing\FakePaymentGateway;
+use App\Billing\PaymentFailedException;
 use App\Concert;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
@@ -22,6 +23,19 @@ class FakePaymentGatewayTest extends TestCase
     }
 
     /** @test  */
+    public function chargesWithAnInvalidPaymentTokenFail()
+    {
+        try {
+            $paymentGateway = new FakePaymentGateway;
+            $paymentGateway->charge(2500, 'invalid');
+        } catch (PaymentFailedException $e) {
+            return;
+        }
+
+        $this->fail();
+
+    }
+
 /*    public function userCannotViewUnpublishedConcertListing()
     {
 
