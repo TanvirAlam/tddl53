@@ -36,9 +36,20 @@ class FakePaymentGatewayTest extends TestCase
 
     }
 
-/*    public function userCannotViewUnpublishedConcertListing()
+    /** @test  */
+    public function runningAHookBeforeTheFirstCharge()
     {
+        $paymentGateway = new FakePaymentGateway;
+        $callbackRan = false;
 
-    }*/
+        $paymentGateway->beforeFirstCharge(function ($paymentgateway) use (&$callbackRan) {
+            $callbackRan = true;
+            $this->assertEquals(0, $paymentgateway->totalCharges());
+        });
+
+        $paymentGateway->charge(2500, $paymentGateway->getValidTestToken());
+        $this->assertTrue($callbackRan);
+        $this->assertEquals(2500, $paymentGateway->totalCharges());
+    }
 
 }
