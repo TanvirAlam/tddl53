@@ -159,9 +159,7 @@ class PurchaseTicketsTests extends TestCase
         ]);
 
         $this->assertResponseStatus(404);
-
         $this->assertFalse($concert->hasOrderFor('john@example.com'));
-
         $this->assertEquals(0, $this->paymentGateway->totalCharges());
     }
 
@@ -191,14 +189,13 @@ class PurchaseTicketsTests extends TestCase
         $concert = factory(Concert::class)->states('published')->create()->addTickets(50);
 
         $this->orderTickets($concert, [
-            'email' => 'john@example.com',
+            'email' => 'personB@example.com',
             'ticket_quantity' => 51,
             'payment_token' => $this->paymentGateway->getValidTestToken(),
         ]);
 
         $this->assertResponseStatus(422);
         $this->assertFalse($concert->hasOrderFor('john@example.com'));
-
         $this->assertEquals(0, $this->paymentGateway->totalCharges());
         $this->assertEquals(50, $concert->ticketsRemaining());
     }
@@ -206,13 +203,29 @@ class PurchaseTicketsTests extends TestCase
     /** @test  */
     public function cannotPurchaseTicketsAnotherCustomerIsAlreadyTryingToPurchase()
     {
-        $concert = factory(Concert::class)->states('published')->create()->addTickets(50);
+        $concert = factory(Concert::class)->states('published')->create(['ticket_price' => 1200])->addTickets(50);
+
+        $this->paymentGateway->beforeFirstCharge(function ($paymentgateway) use ($concert){
+            $this->orderTickets($concert, [
+                'email' => 'personB@example.com',
+                'ticket_quantity' => 1,
+                'payment_token' => $this->paymentGateway->getValidTestToken(),
+            ]);
+
+            $this->assertResponseStatus(422);
+            $this->assertFalse($concert->hasOrderFor('personB@example.com'));
+            $this->assertEquals(0, $this->paymentGateway->totalCharges());
+        });
 
         $this->orderTickets($concert, [
             'email' => 'personA@example.com',
             'ticket_quantity' => 51,
             'payment_token' => $this->paymentGateway->getValidTestToken(),
         ]);
+
+        $this->assertEquals(9750, $this->paymentGateway->totalCharges());
+        $this->assertTrue($concert->hasOrderFor('personA@example.com'));
+        $this->assertEquals(3, $concert->ordersFor('personA@example.com')->first()->ticketQuantity());
 
     }
 
