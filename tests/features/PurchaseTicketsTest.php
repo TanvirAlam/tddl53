@@ -21,7 +21,9 @@ class PurchaseTicketsTests extends TestCase
 
     private function orderTickets($concert, $params)
     {
+        $savedRequest = $this->app['request'];
         $this->json('POST', "/concerts/{$concert->id}/orders", $params);
+        $this->app['request'] = $savedRequest;
     }
 
     private function assertValidationError($field)
@@ -206,12 +208,14 @@ class PurchaseTicketsTests extends TestCase
         $concert = factory(Concert::class)->states('published')->create(['ticket_price' => 1200])->addTickets(50);
 
         $this->paymentGateway->beforeFirstCharge(function ($paymentgateway) use ($concert){
+
             $this->orderTickets($concert, [
                 'email' => 'personB@example.com',
                 'ticket_quantity' => 1,
                 'payment_token' => $this->paymentGateway->getValidTestToken(),
             ]);
 
+            //dd(request()->all());
             $this->assertResponseStatus(422);
             $this->assertFalse($concert->hasOrderFor('personB@example.com'));
             $this->assertEquals(0, $this->paymentGateway->totalCharges());
@@ -219,11 +223,13 @@ class PurchaseTicketsTests extends TestCase
 
         $this->orderTickets($concert, [
             'email' => 'personA@example.com',
-            'ticket_quantity' => 51,
+            'ticket_quantity' => 3,
             'payment_token' => $this->paymentGateway->getValidTestToken(),
         ]);
 
-        $this->assertEquals(9750, $this->paymentGateway->totalCharges());
+        //dd($concert->orders()->first()->toArray());
+
+        $this->assertEquals(3600, $this->paymentGateway->totalCharges());
         $this->assertTrue($concert->hasOrderFor('personA@example.com'));
         $this->assertEquals(3, $concert->ordersFor('personA@example.com')->first()->ticketQuantity());
 
